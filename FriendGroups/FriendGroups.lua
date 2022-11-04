@@ -4,7 +4,19 @@ FRIENDGROUPS_GROUP_TOTAL = {}
 local GroupTotal = {}
 local GroupTotalSet = {}
 local GroupSorted = {}
-local currentExpansionMaxLevel = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and 60
+local expansionMaxLevel = {}
+expansionMaxLevel[LE_EXPANSION_CLASSIC] = 60
+expansionMaxLevel[LE_EXPANSION_BURNING_CRUSADE] = 70
+expansionMaxLevel[LE_EXPANSION_WRATH_OF_THE_LICH_KING] = 80
+expansionMaxLevel[LE_EXPANSION_CATACLYSM] = 85
+expansionMaxLevel[LE_EXPANSION_MISTS_OF_PANDARIA] = 90
+expansionMaxLevel[LE_EXPANSION_WARLORDS_OF_DRAENOR] = 100
+expansionMaxLevel[LE_EXPANSION_LEGION] = 110
+expansionMaxLevel[LE_EXPANSION_BATTLE_FOR_AZEROTH] = 120
+expansionMaxLevel[LE_EXPANSION_SHADOWLANDS] = 60
+--expansionMaxLevel[LE_EXPANSION_DRAGONFLIGHT] = 70
+expansionMaxLevel[LE_EXPANSION_DRAGONFLIGHT] = 60
+local currentExpansionMaxLevel = expansionMaxLevel[LE_EXPANSION_LEVEL_CURRENT]
 
 local FriendGroups_Menu = CreateFrame("Frame", "FriendGroups_Menu")
 FriendGroups_Menu.displayMode = "MENU"
@@ -1243,6 +1255,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
 				FriendGroups_SavedVars.collapsed[notCollapsed[i]] = true
 			end
 		end
+		
+		debugLog(currentExpansionMaxLevel, "currentExpansionMaxLevel")
+		debugLog(expansionMaxLevel, "expansionMaxLevel")
 	end
 end)
 
