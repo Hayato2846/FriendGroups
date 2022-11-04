@@ -382,8 +382,6 @@ function debugLog(tData, strName)
 	end
 end
 
-
-
 function Hook(source, target, secure)
 	hooks[source] = _G[source]
 	if secure then
@@ -892,21 +890,36 @@ function GetStatusString(playerData)
 	local status = "Offline"
 	
 	if playerData.buttonType == FRIENDS_BUTTON_TYPE_BNET then
-		local gameAccountInfo = C_BattleNet.GetFriendAccountInfo(playerData.id).gameAccountInfo
+		local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(playerData.id)
+		local gameAccountInfo = friendAccountInfo.gameAccountInfo
 		
-		if gameAccountInfo.isOnline then
-			status = "Online"
-			
-			if gameAccountInfo.isGameBusy then
-				status = "DND"
-			end
-			
-			if gameAccountInfo.isGameAFK or gameAccountInfo.clientProgram == "BSAp" then
-				status = "AFK"
-			end
-			
-			if gameAccountInfo.clientProgram == BNET_CLIENT_WOW then
-				status = status .. "InGame"
+		if friendAccountInfo.isAFK then
+			status = "AFK"
+		end
+		
+		if friendAccountInfo.isDND then
+			status = "DND"
+		end
+		
+		if not friendAccountInfo.isAFK and not friendAccountInfo.isDND then
+			if gameAccountInfo.isOnline then
+				status = "Online"
+				
+				if gameAccountInfo.isGameBusy then
+					status = "DND"
+				end
+				
+				if gameAccountInfo.isGameAFK then
+					status = "AFK"
+				end
+				
+				if gameAccountInfo.clientProgram == "BSAp" then
+					status = status .. "Mobile"
+				end
+				
+				if gameAccountInfo.clientProgram == BNET_CLIENT_WOW then
+					status = status .. "InGame"
+				end
 			end
 		end
 	elseif playerData.buttonType == FRIENDS_BUTTON_TYPE_WOW then
@@ -937,9 +950,11 @@ function sortTableByStatus(playerA, playerB)
 	statusSort["DNDInGame"] = 2
 	statusSort["AFKInGame"] = 3
 	statusSort["Online"] = 4
-	statusSort["DND"] = 5
-	statusSort["AFK"] = 6
-	statusSort["Offline"] = 7
+	statusSort["OnlineMobile"] = 5
+	statusSort["DND"] = 6
+	statusSort["AFK"] = 7
+	statusSort["AFKMobile"] = 8
+	statusSort["Offline"] = 9
 	
 	return statusSort[statusA] < statusSort[statusB]
 end
