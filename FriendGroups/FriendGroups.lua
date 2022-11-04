@@ -27,6 +27,7 @@ local menu_items = {
 		{ text = "Show only Ingame Friends", checked = function() return FriendGroups_SavedVars.ingame_only end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.ingame_only = not FriendGroups_SavedVars.ingame_only FriendsList_Update() end },
 		--{ text = "Show only Retail Friends", checked = function() return FriendGroups_SavedVars.ingame_retail end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.ingame_retail = not FriendGroups_SavedVars.ingame_retail FriendGroups_Update() end },		
 		{ text = "Show only BattleTag", checked = function() return FriendGroups_SavedVars.show_btag end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_btag = not FriendGroups_SavedVars.show_btag FriendsList_Update() end },
+		{ text = "Show only Retail", checked = function() return FriendGroups_SavedVars.show_retail end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_retail = not FriendGroups_SavedVars.show_retail FriendsList_Update() end },
 		{ text = "Sort by status", checked = function() return FriendGroups_SavedVars.sort_by_status end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.sort_by_status = not FriendGroups_SavedVars.sort_by_status FriendsList_Update() end },
 		{ text = "Enable Search", disabled = true, checked = function() return FriendGroups_SavedVars.show_search end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_search = not FriendGroups_SavedVars.show_search FriendsList_Update() end },
 	},
@@ -1068,13 +1069,14 @@ function FriendGroups_Update(forceUpdate)
 				local playerFriendsListData = GetPlayerData(friendsListData, playerId, buttonType)
 				local isOnline
 				local client
+				local isRetail
 				
 				if playerFriendsListData then
 					if playerFriendsListData.buttonType == FRIENDS_BUTTON_TYPE_BNET then
 						local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(playerFriendsListData.id)
-						
 						isOnline = friendAccountInfo.gameAccountInfo.isOnline
 						client = friendAccountInfo.gameAccountInfo.clientProgram
+						isRetail = (friendAccountInfo.gameAccountInfo.wowProjectID == WOW_PROJECT_MAINLINE)
 					elseif playerFriendsListData.buttonType == FRIENDS_BUTTON_TYPE_WOW then
 						isOnline = C_FriendList.GetFriendInfoByIndex(playerFriendsListData.id).connected
 						client = BNET_CLIENT_WOW
@@ -1082,7 +1084,13 @@ function FriendGroups_Update(forceUpdate)
 					
 					if isOnline then
 						if (FriendGroups_SavedVars.ingame_only and client == BNET_CLIENT_WOW) or not FriendGroups_SavedVars.ingame_only then
-							dataProvider:Insert(playerFriendsListData)
+							if FriendGroups_SavedVars.show_retail and client == BNET_CLIENT_WOW then 
+								if isRetail then
+									dataProvider:Insert(playerFriendsListData)
+								end
+							else
+								dataProvider:Insert(playerFriendsListData)
+							end
 						end
 					else
 						if not FriendGroups_SavedVars.hide_offline and ((FriendGroups_SavedVars.ingame_only and client == BNET_CLIENT_WOW) or not FriendGroups_SavedVars.ingame_only) then
@@ -1213,6 +1221,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
 				ingame_retail = false,
 				show_btag = false,
 				sort_by_status = false,
+				show_retail = false,
 				show_faction_icons = true,
 				show_search = false
 			}
