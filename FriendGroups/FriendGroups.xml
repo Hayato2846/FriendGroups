@@ -5,10 +5,17 @@
 		<Size x="298" y="16"/>
 		<Layers>
 			<Layer level="ARTWORK">
-				<FontString inherits="FriendsFont_Normal" justifyH="LEFT" parentKey="name">
+				<FontString inherits="FriendsFont_Normal" justifyH="CENTER" parentKey="name">
 					<Size x="226" y="12"/>
 					<Anchors>
-						<Anchor point="TOPLEFT" x="20" y="-4"/>
+						<Anchor point="TOPLEFT" x="0" y="-4"/>
+					</Anchors>
+					<Color color="NORMAL_FONT_COLOR"/>
+				</FontString>
+				<FontString inherits="FriendsFont_Normal" justifyH="RIGHT" parentKey="info">
+					<Size x="226" y="12"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT" x="-20" y="-4"/>
 					</Anchors>
 					<Color color="NORMAL_FONT_COLOR"/>
 				</FontString>

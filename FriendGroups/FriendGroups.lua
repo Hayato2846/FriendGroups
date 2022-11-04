@@ -1115,9 +1115,29 @@ end
 
 function FriendGroups_UpdateDividerTemplate(frame, elementData)
 	local groupName = elementData.groupName
+	local groupTotal = 0
+	local groupOnline = 0
 	
 	if groupName and frame.name then
 		frame.name:SetText(groupName)
+		
+		for _, playerData in ipairs(FRIENDGROUPS_GROUP_TOTAL) do
+			if groupName == playerData.groupName or playerData.groupName == "" then
+				local status = GetStatusString(playerData)
+				
+				if status ~= "Offline" then
+					groupOnline = groupOnline + 1
+				end
+				
+				groupTotal = groupTotal + 1
+			end
+		end
+		
+		local groupInfo = string.format("%d/%d", groupOnline, groupTotal)
+		
+		if frame.info then
+			frame.info:SetText(groupInfo)
+		end
 		
 		if groupName ~= "Search..." then
 			if FriendGroups_SavedVars.collapsed[groupName] then
