@@ -1255,9 +1255,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
 				FriendGroups_SavedVars.collapsed[notCollapsed[i]] = true
 			end
 		end
-		
-		debugLog(currentExpansionMaxLevel, "currentExpansionMaxLevel")
-		debugLog(expansionMaxLevel, "expansionMaxLevel")
 	end
 end)
 
