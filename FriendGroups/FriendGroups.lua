@@ -1,10 +1,11 @@
 local hooks = {}
-FRIENDGROUPS_GROUP_SORTED = {}
-FRIENDGROUPS_GROUP_TOTAL = {}
+local FRIENDGROUPS_GROUP_SORTED = {}
+local FRIENDGROUPS_GROUP_TOTAL = {}
 local GroupTotal = {}
 local GroupTotalSet = {}
 local GroupSorted = {}
 local expansionMaxLevel = {}
+
 expansionMaxLevel[LE_EXPANSION_CLASSIC] = 60
 expansionMaxLevel[LE_EXPANSION_BURNING_CRUSADE] = 70
 expansionMaxLevel[LE_EXPANSION_WRATH_OF_THE_LICH_KING] = 80
@@ -1059,11 +1060,15 @@ function FriendGroups_Update(forceUpdate)
 	end
 	
 	if next(GroupSortedData) ~= nil then
+		wipe(FRIENDGROUPS_GROUP_SORTED)
 		FRIENDGROUPS_GROUP_SORTED = GroupSortedData
+		GroupSortedData = nil
 	end
 	
 	if next(GroupTotalData) ~= nil then
+		wipe(FRIENDGROUPS_GROUP_TOTAL)
 		FRIENDGROUPS_GROUP_TOTAL = GroupTotalData
+		GroupTotalData = nil
 	end
 	
 	for _, groupName in ipairs(FRIENDGROUPS_GROUP_SORTED) do
@@ -1210,7 +1215,7 @@ function FriendGroups_FriendGroupsFrameFriendDividerTemplateHeaderClick(self, bu
 	end
 end
 
-local frame = CreateFrame("frame")
+local frame = CreateFrame("frame", "FriendGroups")
 frame:RegisterEvent("PLAYER_LOGIN")
 
 frame:SetScript("OnEvent", function(self, event, ...)
@@ -1270,11 +1275,11 @@ frame:SetScript("OnEvent", function(self, event, ...)
 				FriendGroups_SavedVars.collapsed[notCollapsed[i]] = true
 			end
 		end
+		
+		hooksecurefunc("FriendsFrameBNDropDown_Initialize", addDropDown)
+		hooksecurefunc("FriendsFrameBNOfflineDropDown_Initialize", addDropDown)
+
+		hooksecurefunc("FriendsFrameDropDown_Initialize", addDropDown)
+		hooksecurefunc("FriendsFrameOfflineDropDown_Initialize", addDropDown)
 	end
 end)
-
-hooksecurefunc("FriendsFrameBNDropDown_Initialize", addDropDown)
-hooksecurefunc("FriendsFrameBNOfflineDropDown_Initialize", addDropDown)
-
-hooksecurefunc("FriendsFrameDropDown_Initialize", addDropDown)
-hooksecurefunc("FriendsFrameOfflineDropDown_Initialize", addDropDown)
