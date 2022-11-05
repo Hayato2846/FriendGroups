@@ -892,12 +892,12 @@ function GetStatusString(playerData)
 	if playerData.buttonType == FRIENDS_BUTTON_TYPE_BNET then
 		local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(playerData.id)
 		local gameAccountInfo = friendAccountInfo.gameAccountInfo
-		
-		if friendAccountInfo.isAFK then
+
+		if friendAccountInfo.isAFK and gameAccountInfo and gameAccountInfo.isOnline then
 			status = "AFK"
 		end
 		
-		if friendAccountInfo.isDND then
+		if friendAccountInfo.isDND and gameAccountInfo and gameAccountInfo.isOnline then
 			status = "DND"
 		end
 		
@@ -1157,7 +1157,7 @@ function FriendGroups_UpdateDividerTemplate(frame, elementData)
 		frame.name:SetText(groupName)
 		
 		for _, playerData in ipairs(FRIENDGROUPS_GROUP_TOTAL) do
-			if groupName == playerData.groupName or playerData.groupName == "" then
+			if groupName == playerData.groupName or playerData.groupName == "" and groupName == "[no group]" then
 				local status = GetStatusString(playerData)
 				
 				if status ~= "Offline" then
