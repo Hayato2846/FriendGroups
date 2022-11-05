@@ -1023,6 +1023,10 @@ function FriendGroups_Update(forceUpdate)
         local noteText;
         local id = buttonData.id
 		
+		if buttonData.buttonType == FRIENDS_BUTTON_TYPE_INVITE then
+			dataProvider:Insert(buttonData)
+		end
+		
         if buttonData.buttonType == FRIENDS_BUTTON_TYPE_BNET then
             noteText = C_BattleNet.GetFriendAccountInfo(id).note;
         elseif buttonData.buttonType == FRIENDS_BUTTON_TYPE_WOW then
