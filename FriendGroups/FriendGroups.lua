@@ -40,8 +40,9 @@ local menu_items = {
 		{ text = "Show only Ingame Friends", checked = function() return FriendGroups_SavedVars.ingame_only end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.ingame_only = not FriendGroups_SavedVars.ingame_only FriendsList_Update() end },
 		--{ text = "Show only Retail Friends", checked = function() return FriendGroups_SavedVars.ingame_retail end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.ingame_retail = not FriendGroups_SavedVars.ingame_retail FriendGroups_Update() end },		
 		{ text = "Show only BattleTag", checked = function() return FriendGroups_SavedVars.show_btag end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_btag = not FriendGroups_SavedVars.show_btag FriendsList_Update() end },
-		{ text = "Show only Retail", checked = function() return FriendGroups_SavedVars.show_retail end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_retail = not FriendGroups_SavedVars.show_retail FriendsList_Update() end },
+		{ text = "Show only Retail Friends", checked = function() return FriendGroups_SavedVars.show_retail end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_retail = not FriendGroups_SavedVars.show_retail FriendsList_Update() end },
 		{ text = "Sort by status", checked = function() return FriendGroups_SavedVars.sort_by_status end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.sort_by_status = not FriendGroups_SavedVars.sort_by_status FriendsList_Update() end },
+		{ text = "Enable Favorite Friends Group", checked = function() return FriendGroups_SavedVars.add_favorite_group end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.add_favorite_group = not FriendGroups_SavedVars.add_favorite_group FriendsList_Update() end },
 		{ text = "Enable Search", disabled = true, checked = function() return FriendGroups_SavedVars.show_search end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_search = not FriendGroups_SavedVars.show_search FriendsList_Update() end },
 	},
 }
@@ -58,7 +59,7 @@ FriendGroups_Menu.initialize = function(self, level)
 		
 		if level == 1 then
 			local groupName = UIDROPDOWNMENU_MENU_VALUE and UIDROPDOWNMENU_MENU_VALUE.name and UIDROPDOWNMENU_MENU_VALUE.name:GetText()
-			if groupName == "" or groupName == "[no group]" then
+			if groupName == "" or groupName == "[no group]" or groupName == "[Favorites]"  then
 				if items.text == "Rename group" or items.text == "Remove group" then
 					info.disabled = true
 				end
@@ -109,7 +110,7 @@ FriendGroupFrame.initialize = function(self, level)
 
 			local groups = GetPlayerGroups(note)
 			for _, group in ipairs(FRIENDGROUPS_GROUP_SORTED) do
-				if not has_value(groups, group) and not (group == "") then
+				if not has_value(groups, group) and not (group == "") and not (group == "[Favorites]") then
 					info.text = group
 					info.func = function() 
 						note = AddGroup(note, group) 
@@ -1010,6 +1011,18 @@ function GetFriendsListData()
 	return friendsListData
 end
 
+function sortGroupsCustom(groupA, groupB)
+	if groupA == "[Favorites]" then
+		return true
+	end
+	
+	if groupB == "[Favorites]" then
+		return false
+	end
+	
+	return groupA < groupB
+end
+
 function FriendGroups_Update(forceUpdate)
     local friendsListData = GetFriendsListData()
     local dataProvider = CreateDataProvider()
@@ -1020,20 +1033,28 @@ function FriendGroups_Update(forceUpdate)
 	if not friendsListData then return end
 	
     for _, buttonData in ipairs(friendsListData) do
-        local noteText;
+        local noteText
         local id = buttonData.id
+		local addFavorite = false
 		
 		if buttonData.buttonType == FRIENDS_BUTTON_TYPE_INVITE then
 			dataProvider:Insert(buttonData)
 		end
 		
         if buttonData.buttonType == FRIENDS_BUTTON_TYPE_BNET then
-            noteText = C_BattleNet.GetFriendAccountInfo(id).note;
+			local accountInfo = C_BattleNet.GetFriendAccountInfo(id)
+			
+            noteText = accountInfo.note
+			addFavorite = (FriendGroups_SavedVars.add_favorite_group and accountInfo.isFavorite)
         elseif buttonData.buttonType == FRIENDS_BUTTON_TYPE_WOW then
             noteText = C_FriendList.GetFriendInfoByIndex(id) and C_FriendList.GetFriendInfoByIndex(buttonData.id).notes
         end
 		
 		local groups = GetPlayerGroups(noteText)
+		
+		if addFavorite then
+			table.insert(groups, "[Favorites]")
+		end
 		
 		for _, groupName in ipairs(groups) do
 			local newGroup = true
@@ -1057,7 +1078,7 @@ function FriendGroups_Update(forceUpdate)
 		end
     end
 	
-	table.sort(GroupSortedData)
+	table.sort(GroupSortedData, sortGroupsCustom)
 	
 	if noGroupExists then
 		table.insert(GroupSortedData, "")
