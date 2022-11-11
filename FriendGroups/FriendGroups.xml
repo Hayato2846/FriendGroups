@@ -1,6 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
-	<!--<Script file="FriendGroups.lua"/>-->
 	<Button name="FriendGroupsFrameFriendDividerTemplate" registerForClicks="LeftButtonUp, RightButtonUp" virtual="true">
 		<Size x="298" y="16"/>
 		<Layers>
@@ -22,6 +21,14 @@
 			</Layer>
 		</Layers>
 		<Frames>
+			<!--
+			<EditBox parentKey="searchBox" justifyH="CENTER">
+				<Size x="226" y="16"/>
+				<Anchors>
+					<Anchor point="CENTER" x="0" y="0"/>
+				</Anchors>
+			</EditBox>
+			-->
 			<Button parentKey="collapseButton" registerForClicks="LeftButtonUp" virtual="true">
 				<Size x="16" y="16"/>
 				<Anchors>
@@ -35,7 +42,7 @@
 				</NormalTexture>
 				<Scripts>
 					<OnClick>
-						FriendGroups_FriendGroupsFrameFriendDividerTemplateCollapseClick(self, button, down)
+						FriendGroups_FrameFriendDividerTemplateCollapseClick(self, button, down)
 					</OnClick>
 				</Scripts>
 				<HighlightTexture file="Interface\QuestFrame\UI-QuestLogTitleHighlight" alphaMode="ADD" parentKey="highlight">
@@ -54,7 +61,7 @@
 		</HighlightTexture>
 		<Scripts>
 			<OnClick>
-				FriendGroups_FriendGroupsFrameFriendDividerTemplateHeaderClick(self, button, down)
+				FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
 			</OnClick>
 		</Scripts>
 	</Button>
