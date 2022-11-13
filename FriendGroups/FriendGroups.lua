@@ -128,7 +128,7 @@ function FriendGroups_InviteOrGroup(clickedgroup, invite)
 			elseif not invite then
 				groups[clickedgroup] = nil
 				note = FriendGroups_CreateNote(note, groups)
-				C_FriendList.SetFriendNotes(i, note)
+				C_FriendList.SetFriendNotes(name, note)
 			end
 		end
 	end
