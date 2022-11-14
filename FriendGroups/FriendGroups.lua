@@ -1077,7 +1077,6 @@ function FriendsList_Update(forceUpdate)
 	-- invites
 	local numInvites = BNGetNumFriendInvites()
 	if ( numInvites > 0 ) then
-		table.insert(friendsListData, {buttonType=FRIENDS_BUTTON_TYPE_INVITE_HEADER})
 		if ( not GetCVarBool("friendInvitesCollapsed") ) then
 			for i = 1, numInvites do
 				dataProvider:Insert({id=i, buttonType=FRIENDS_BUTTON_TYPE_INVITE})
