@@ -5,6 +5,8 @@ local groupsTotal = {}
 local groupsSorted = {}
 local groupsCount = {}
 local expansionMaxLevel = {}
+local friendsListEmpty = false
+local lastFriendsListEmptyWarning = 0
 local currentExpansionMaxLevel, FriendGroups_Menu, FriendGroupFrame, searchOpened
 local searchValue = ""
 local menuItems = {
@@ -644,9 +646,13 @@ function FriendGroups_SetGroups(id, buttonType, favorite)
 		
 		if buttonType == FRIENDS_BUTTON_TYPE_BNET then
 			local friendAccountInfo = C_BattleNet.GetFriendAccountInfo(id)
-			isOnline = friendAccountInfo.gameAccountInfo.isOnline
-			client = friendAccountInfo.gameAccountInfo.clientProgram
-			isRetail = (friendAccountInfo.gameAccountInfo.wowProjectID == WOW_PROJECT_MAINLINE)
+			if not friendAccountInfo then
+				friendsListEmpty = true
+			else
+				isOnline = friendAccountInfo.gameAccountInfo.isOnline
+				client = friendAccountInfo.gameAccountInfo.clientProgram
+				isRetail = (friendAccountInfo.gameAccountInfo.wowProjectID == WOW_PROJECT_MAINLINE)
+			end
 		elseif buttonType == FRIENDS_BUTTON_TYPE_WOW then
 			isOnline = C_FriendList.GetFriendInfoByIndex(id).connected
 			client = BNET_CLIENT_WOW
@@ -1141,6 +1147,11 @@ function FriendsList_Update(forceUpdate)
 		if not groupsTotal[groupName] then
 			FriendGroups_SavedVars.collapsed[groupName] = nil
 		end
+	end
+	
+	if friendsListEmpty and (lastFriendsListEmptyWarning + 60) <= (math.floor(GetTime()+0.5)) then
+		lastFriendsListEmptyWarning = math.floor(GetTime()+0.5)
+		print("|cFF33FF99FriendGroups|r: Bnet API Bug detected. Your empty Friends List is caused by a WoW Client Bug. Please try to restart your game. (no guaranteed fix)")
 	end
 end
 
