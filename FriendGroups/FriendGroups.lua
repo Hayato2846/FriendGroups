@@ -595,6 +595,14 @@ function FriendGroups_SortGroupsCustom(groupA, groupB)
 		return true
 	end
 	
+	if groupA == "[No Group]" then
+		return false
+	end
+	
+	if groupB == "[No Group]" then
+		return true
+	end
+	
 	if groupB == "[Favorites]" then
 		return false
 	end
