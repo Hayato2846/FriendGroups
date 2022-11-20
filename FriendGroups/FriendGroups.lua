@@ -1,6 +1,7 @@
 --[[
 	Variables
 ]]--
+local INVITE_RESTRICTION_NONE = 9
 local groupsTotal = {}
 local groupsSorted = {}
 local groupsCount = {}
