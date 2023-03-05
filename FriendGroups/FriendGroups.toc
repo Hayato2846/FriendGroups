@@ -1,5 +1,5 @@
-## Interface: 100002
-## Version: 10.0.1
+## Interface: 100007
+## Version: 10.0.7
 ## Title: Friend Groups
 ## Author: Mikeprod
 ## Edited by Thainii
