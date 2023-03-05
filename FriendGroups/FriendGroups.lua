@@ -32,6 +32,7 @@ local menuItems = {
 		{ text = "Show only Retail Friends", checked = function() return FriendGroups_SavedVars.show_retail end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_retail = not FriendGroups_SavedVars.show_retail FriendsList_Update() end },
 		{ text = "Sort by status", checked = function() return FriendGroups_SavedVars.sort_by_status end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.sort_by_status = not FriendGroups_SavedVars.sort_by_status FriendsList_Update() end },
 		{ text = "Enable Favorite Friends Group", checked = function() return FriendGroups_SavedVars.add_favorite_group end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.add_favorite_group = not FriendGroups_SavedVars.add_favorite_group FriendsList_Update() end },
+		{ text = "Enable to open only one group at a time", checked = function() return FriendGroups_SavedVars.open_one_group end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.open_one_group = not FriendGroups_SavedVars.open_one_group FriendsList_Update() end },
 		{ text = "Enable Search", disabled = true, checked = function() return FriendGroups_SavedVars.show_search end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_search = not FriendGroups_SavedVars.show_search FriendsList_Update() end },
 	},
 }
@@ -1234,13 +1235,11 @@ function FriendGroups_FrameFriendDividerTemplateCollapseClick(self, button, down
 	
 	FriendGroups_SavedVars.collapsed[groupName] = not FriendGroups_SavedVars.collapsed[groupName]
 	
-	-- Workaround thanks to scrolling issues...
-	
-	for collapseGroupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
-		if groupName ~= collapseGroupName then FriendGroups_SavedVars.collapsed[collapseGroupName] = true end
+	if FriendGroups_SavedVars.open_one_group then
+		for collapseGroupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
+			if groupName ~= collapseGroupName then FriendGroups_SavedVars.collapsed[collapseGroupName] = true end
+		end
 	end
-	
-	-- Workaround end
 	
 	FriendsList_Update()
 end
