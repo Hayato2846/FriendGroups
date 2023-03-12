@@ -1257,6 +1257,10 @@ function FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
 	end
 end
 
+function FriendGroups_FriendsListButtonTemplateClick(self, button, down)
+	FriendsList_Update()
+end
+
 --[[
 	Init Addon
 ]]--
@@ -1289,6 +1293,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
 		hooksecurefunc("FriendsFrameBNOfflineDropDown_Initialize", FriendGroups_AddDropDown)
 		hooksecurefunc("FriendsFrameDropDown_Initialize", FriendGroups_AddDropDown)
 		hooksecurefunc("FriendsFrameOfflineDropDown_Initialize", FriendGroups_AddDropDown)
+		hooksecurefunc(FriendsListButtonMixin, "OnClick", FriendGroups_FriendsListButtonTemplateClick)
 		
 		if not FriendGroups_SavedVars then
 			FriendGroups_SavedVars = {
@@ -1309,20 +1314,22 @@ frame:SetScript("OnEvent", function(self, event, ...)
 			}
 		end
 		
-		-- Migrate collapsed to only have one false value at a time
-		local notCollapsed = {}
-		for groupName, collapsed in pairs(FriendGroups_SavedVars.collapsed) do
-			if not collapsed then
-				table.insert(notCollapsed, groupName)
+		if FriendGroups_SavedVars.open_one_group then
+			-- Migrate collapsed to only have one false value at a time
+			local notCollapsed = {}
+			for groupName, collapsed in pairs(FriendGroups_SavedVars.collapsed) do
+				if not collapsed then
+					table.insert(notCollapsed, groupName)
+				end
 			end
-		end
-		
-		table.sort(notCollapsed)
-		
-		if #notCollapsed > 1 then
-			FriendGroups_SavedVars.collapsed[notCollapsed[1]] = false
-			for i = 2, #notCollapsed do
-				FriendGroups_SavedVars.collapsed[notCollapsed[i]] = true
+			
+			table.sort(notCollapsed)
+			
+			if #notCollapsed > 1 then
+				FriendGroups_SavedVars.collapsed[notCollapsed[1]] = false
+				for i = 2, #notCollapsed do
+					FriendGroups_SavedVars.collapsed[notCollapsed[i]] = true
+				end
 			end
 		end
 	end
