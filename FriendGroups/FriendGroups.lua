@@ -1136,7 +1136,7 @@ function FriendsList_Update(forceUpdate)
 	local numWoWOffline = numWoWTotal - numWoWOnline
 	local dataProvider = CreateDataProvider()
 	local retainScrollPosition = not forceUpdate
-	local insertFriend
+	local hideGroups = FriendGroups_SavedVars.hide_empty_groups or (FriendGroups_SavedVars.show_search and searchValue ~= "")
 
 	if (not FriendsListFrame:IsShown() and not forceUpdate) then
 		return
@@ -1189,18 +1189,18 @@ function FriendsList_Update(forceUpdate)
 	table.sort(groupsSorted, FriendGroups_SortGroupsCustom)
 
 	for _, groupName in ipairs(groupsSorted) do
-		if (#groupsTotal[groupName] > 0) then
+		if (not hideGroups or (hideGroups and #groupsTotal[groupName] > 0)) then
 			if FriendGroups_SavedVars.collapsed[groupName] == nil then
 				FriendGroups_SavedVars.collapsed[groupName] = true
 			end
-	
+
 			dataProvider:Insert({buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = groupName})
-	
+
 			if not FriendGroups_SavedVars.collapsed[groupName] then
 				if FriendGroups_SavedVars.sort_by_status then
 					table.sort(groupsTotal[groupName], FriendGroups_SortTableByStatus)
 				end
-	
+
 				for _, playerData in ipairs(groupsTotal[groupName]) do
 					if playerData.buttonType and playerData.id then
 						dataProvider:Insert({id=playerData.id, buttonType=playerData.buttonType})
@@ -1443,7 +1443,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
 				sort_by_status = false,
 				show_retail = false,
 				show_faction_icons = true,
-				show_search = false
+				show_search = false,
+				hide_empty_groups = false
 			}
 		end
 
