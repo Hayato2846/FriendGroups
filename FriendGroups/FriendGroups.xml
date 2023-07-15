@@ -21,14 +21,6 @@
 			</Layer>
 		</Layers>
 		<Frames>
-			<!--
-			<EditBox parentKey="searchBox" justifyH="CENTER">
-				<Size x="226" y="16"/>
-				<Anchors>
-					<Anchor point="CENTER" x="0" y="0"/>
-				</Anchors>
-			</EditBox>
-			-->
 			<Button parentKey="collapseButton" registerForClicks="LeftButtonUp" virtual="true">
 				<Size x="16" y="16"/>
 				<Anchors>
