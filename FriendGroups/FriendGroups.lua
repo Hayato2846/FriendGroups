@@ -1144,8 +1144,6 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
 	local retainScrollPosition = not forceUpdate
 	local hideGroups = FriendGroups_SavedVars.hide_empty_groups or (FriendGroups_SavedVars.show_search and searchValue ~= "")
 
-	FriendGroups_DebugLog(FriendsListFrame.ScrollBox, "FriendsListFrame.ScrollBox")
-
 	local dataProvider = FriendsListFrame.ScrollBox:GetDataProvider()
 	
 	if (dataProvider) then
@@ -1363,9 +1361,11 @@ function FriendsList_UpdateDividerTemplate(frame, elementData)
 				end
 
 				if FriendGroups_SavedVars.collapsed[groupName] then
-					frame.collapseButton.status:SetTexture("Interface\\Buttons\\UI-PlusButton-UP")
+					frame.collapseButton:SetNormalAtlas("Campaign_HeaderIcon_Closed")
+					frame.collapseButton:SetPushedAtlas("Campaign_HeaderIcon_ClosedPressed")
 				else
-					frame.collapseButton.status:SetTexture("Interface\\Buttons\\UI-MinusButton-UP")
+					frame.collapseButton:SetNormalAtlas("Campaign_HeaderIcon_Open")
+					frame.collapseButton:SetPushedAtlas("Campaign_HeaderIcon_OpenPressed")
 				end
 			else
 				frame.collapseButton.status:SetTexture("")
@@ -1375,6 +1375,9 @@ function FriendsList_UpdateDividerTemplate(frame, elementData)
 			end
 		end
 
+		frame.collapseButton:SetHighlightTexture("Interface\\Buttons\\UI-PlusButton-Hilight")
+		frame:SetHighlightTexture("Interface\\Buttons\\UI-PlusButton-Hilight")
+		frame:GetHighlightTexture():SetAlpha(0.4)
 	end
 end
 
