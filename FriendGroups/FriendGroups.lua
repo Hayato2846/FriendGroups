@@ -1,6 +1,8 @@
 --[[
 	Variables
 ]]--
+local playerRealmID = GetRealmID();
+local playerFactionGroup = UnitFactionGroup("player");
 local INVITE_RESTRICTION_NONE = 9
 local groupsTotal = {}
 local groupsSorted = {}
@@ -21,24 +23,25 @@ local menuItems = {
 	},
 	[2] = {
 		{ text = "Filter", notCheckable = true, isTitle = true },
-		{ text = "Enable Search", checked = function() return FriendGroups_SavedVars.show_search end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_search = not FriendGroups_SavedVars.show_search FriendsList_Update() end },
-		{ text = "Hide all offline", checked = function() return FriendGroups_SavedVars.hide_offline end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.hide_offline = not FriendGroups_SavedVars.hide_offline FriendsList_Update() end },
-		{ text = "Hide empty groups", checked = function() return FriendGroups_SavedVars.hide_empty_groups end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.hide_empty_groups = not FriendGroups_SavedVars.hide_empty_groups FriendsList_Update() end },
-		{ text = "Show only Ingame Friends", checked = function() return FriendGroups_SavedVars.ingame_only end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.ingame_only = not FriendGroups_SavedVars.ingame_only FriendsList_Update() end },
-		{ text = "Show only Retail Friends", checked = function() return FriendGroups_SavedVars.show_retail end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_retail = not FriendGroups_SavedVars.show_retail FriendsList_Update() end },
+		{ text = "Enable Search", checked = function() return FriendGroups_SavedVars.show_search end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_search = not FriendGroups_SavedVars.show_search FriendGroups_FriendsListUpdate() end },
+		{ text = "Hide all offline", checked = function() return FriendGroups_SavedVars.hide_offline end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.hide_offline = not FriendGroups_SavedVars.hide_offline FriendGroups_FriendsListUpdate() end },
+		{ text = "Hide empty groups", checked = function() return FriendGroups_SavedVars.hide_empty_groups end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.hide_empty_groups = not FriendGroups_SavedVars.hide_empty_groups FriendGroups_FriendsListUpdate() end },
+		{ text = "Show only Ingame Friends", checked = function() return FriendGroups_SavedVars.ingame_only end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.ingame_only = not FriendGroups_SavedVars.ingame_only FriendGroups_FriendsListUpdate() end },
+		{ text = "Show only Retail Friends", checked = function() return FriendGroups_SavedVars.show_retail end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_retail = not FriendGroups_SavedVars.show_retail FriendGroups_FriendsListUpdate() end },
 		{ text = "Customize", notCheckable = true, isTitle = true },
-		{ text = "Show Faction Icons", checked = function() return FriendGroups_SavedVars.show_faction_icons end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_faction_icons = not FriendGroups_SavedVars.show_faction_icons FriendsList_Update() end },
-		{ text = "Colour names", checked = function() return FriendGroups_SavedVars.colour_classes end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.colour_classes = not FriendGroups_SavedVars.colour_classes FriendsList_Update() end },
-		{ text = "Gray out other Faction", checked = function() return FriendGroups_SavedVars.gray_faction end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.gray_faction = not FriendGroups_SavedVars.gray_faction FriendsList_Update() end },
-		{ text = "Show Mobile always as AFK", checked = function() return FriendGroups_SavedVars.show_mobile_afk end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_mobile_afk = not FriendGroups_SavedVars.show_mobile_afk FriendsList_Update() end },
-		{ text = "Add Mobile Text", checked = function() return FriendGroups_SavedVars.add_mobile_text end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.add_mobile_text = not FriendGroups_SavedVars.add_mobile_text FriendsList_Update() end },
-		{ text = "Hide level of max level players", checked = function() return FriendGroups_SavedVars.hide_high_level end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.hide_high_level = not FriendGroups_SavedVars.hide_high_level FriendsList_Update() end },
-		{ text = "Show only BattleTag", checked = function() return FriendGroups_SavedVars.show_btag end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_btag = not FriendGroups_SavedVars.show_btag FriendsList_Update() end },
-		{ text = "Enable Favorite Friends Group", checked = function() return FriendGroups_SavedVars.add_favorite_group end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.add_favorite_group = not FriendGroups_SavedVars.add_favorite_group FriendsList_Update() end },
+		{ text = "Show Faction Icons", checked = function() return FriendGroups_SavedVars.show_faction_icons end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_faction_icons = not FriendGroups_SavedVars.show_faction_icons FriendGroups_FriendsListUpdate() end },
+		{ text = "Show Realm", checked = function() return FriendGroups_SavedVars.show_realm end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_realm = not FriendGroups_SavedVars.show_realm FriendGroups_FriendsListUpdate() end },
+		{ text = "Colour names", checked = function() return FriendGroups_SavedVars.colour_classes end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.colour_classes = not FriendGroups_SavedVars.colour_classes FriendGroups_FriendsListUpdate() end },
+		{ text = "Gray out other Faction", checked = function() return FriendGroups_SavedVars.gray_faction end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.gray_faction = not FriendGroups_SavedVars.gray_faction FriendGroups_FriendsListUpdate() end },
+		{ text = "Show Mobile always as AFK", checked = function() return FriendGroups_SavedVars.show_mobile_afk end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_mobile_afk = not FriendGroups_SavedVars.show_mobile_afk FriendGroups_FriendsListUpdate() end },
+		{ text = "Add Mobile Text", checked = function() return FriendGroups_SavedVars.add_mobile_text end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.add_mobile_text = not FriendGroups_SavedVars.add_mobile_text FriendGroups_FriendsListUpdate() end },
+		{ text = "Hide level of max level players", checked = function() return FriendGroups_SavedVars.hide_high_level end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.hide_high_level = not FriendGroups_SavedVars.hide_high_level FriendGroups_FriendsListUpdate() end },
+		{ text = "Show only BattleTag", checked = function() return FriendGroups_SavedVars.show_btag end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_btag = not FriendGroups_SavedVars.show_btag FriendGroups_FriendsListUpdate() end },
+		{ text = "Enable Favorite Friends Group", checked = function() return FriendGroups_SavedVars.add_favorite_group end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.add_favorite_group = not FriendGroups_SavedVars.add_favorite_group FriendGroups_FriendsListUpdate() end },
 		{ text = "Sort", notCheckable = true, isTitle = true },
-		{ text = "Sort by status", checked = function() return FriendGroups_SavedVars.sort_by_status end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.sort_by_status = not FriendGroups_SavedVars.sort_by_status FriendsList_Update() end },
+		{ text = "Sort by status", checked = function() return FriendGroups_SavedVars.sort_by_status end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.sort_by_status = not FriendGroups_SavedVars.sort_by_status FriendGroups_FriendsListUpdate() end },
 		{ text = "Misc", notCheckable = true, isTitle = true },
-		{ text = "Enable to open only one group at a time", checked = function() return FriendGroups_SavedVars.open_one_group end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.open_one_group = not FriendGroups_SavedVars.open_one_group FriendsList_Update() end },
+		{ text = "Enable to open only one group at a time", checked = function() return FriendGroups_SavedVars.open_one_group end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.open_one_group = not FriendGroups_SavedVars.open_one_group FriendGroups_FriendsListUpdate() end },
 	},
 }
 
@@ -103,7 +106,7 @@ function FriendGroups_Rename(self, old)
 			C_FriendList.SetFriendNotes(name, note)
 		end
 	end
-	FriendsList_Update()
+	FriendGroups_FriendsListUpdate()
 end
 
 function FriendGroups_InviteOrGroup(clickedgroup, invite)
@@ -438,7 +441,7 @@ function FriendGroups_ShowRichPresenceOnly(client, wowProjectID, faction, realmI
 	end;
 end
 
-function FriendGroups_GetOnlineInfoText(client, isMobile, rafLinkType, locationText)
+function FriendGroups_GetOnlineInfoText(client, isMobile, rafLinkType, locationText, realmText)
 	if not locationText then
 		return UNKNOWN;
 	end
@@ -453,14 +456,18 @@ function FriendGroups_GetOnlineInfoText(client, isMobile, rafLinkType, locationT
 		end
 	end
 
+	if FriendGroups_SavedVars.show_realm and realmText and realmText ~= "" then
+		locationText = locationText .. " - " .. realmText
+	end
+
 	return locationText;
 end
 
 function FriendGroups_GetFriendInfoById(id)
 	local accountName, characterName, class, level, isFavoriteFriend, isOnline,
 		bnetAccountId, client, canCoop, wowProjectID, lastOnline,
-		isAFK, isGameAFK, isDND, isGameBusy, mobile, zoneName, battleTag, factionName
-	local realmName
+		isAFK, isGameAFK, isDND, isGameBusy, mobile, zoneName, battleTag, factionName,
+		gameText, realmName
 
 	if C_BattleNet and C_BattleNet.GetFriendAccountInfo then
 		local accountInfo = C_BattleNet.GetFriendAccountInfo(id)
@@ -493,14 +500,14 @@ function FriendGroups_GetFriendInfoById(id)
 			canCoop = CanCooperateWithGameAccount(accountInfo)
 		end
 	else
-		bnetIDAccount, accountName, _, _, characterName, bnetAccountId, client,
+		_, accountName, _, _, characterName, bnetAccountId, client,
 		isOnline, lastOnline, isAFK, isDND, _, _, _, _, wowProjectID, _, _,
-		isFavorite, mobile = BNetAccountInfo(id)
+		_, mobile = BNetAccountInfo(id)
 
 
 		if isOnline then
-			_, _, _, realmName, realmID, factionName, _, class, _, zoneName, level,
-			gameText, _, _, _, _, _, isGameAFK, isGameBusy, guid,
+			_, _, _, realmName, _, factionName, _, class, _, zoneName, level,
+			gameText, _, _, _, _, _, isGameAFK, isGameBusy, _,
 			wowProjectID, mobile = BNGetGameAccountInfo(bnetAccountId)
 		end
 
@@ -638,7 +645,6 @@ function FriendGroups_GetFriendNote(id, buttonType)
 
 		if accountInfo then
 			noteText = accountInfo.note
-			addFavorite = (FriendGroups_SavedVars.add_favorite_group and accountInfo.isFavorite)
 		end
 	elseif buttonType == FRIENDS_BUTTON_TYPE_WOW then
         noteText = C_FriendList.GetFriendInfoByIndex(id) and C_FriendList.GetFriendInfoByIndex(id).notes
@@ -764,7 +770,7 @@ FriendGroups_Menu.initialize = function(self, level)
 		for prop, value in pairs(items) do
 			info[prop] = value ~= "" and value or UIDROPDOWNMENU_MENU_VALUE and UIDROPDOWNMENU_MENU_VALUE.name and UIDROPDOWNMENU_MENU_VALUE.name:GetText() or "[No Group]"
 		end
-		info.arg1 = k
+		info.arg1 = nil
 		info.arg2 = UIDROPDOWNMENU_MENU_VALUE
 
 		if level == 1 then
@@ -977,9 +983,9 @@ function FriendsList_UpdateFriendButton(button, elementData)
 		if accountInfo then
 			nameText, nameColor, statusTexture = FriendsFrame_GetBNetAccountNameAndStatus(accountInfo);
 
-			local accountName, characterName, class, level, isFavoriteFriend, isOnline,
-			bnetAccountId, client, canCoop, wowProjectID, lastOnline,
-			isAFK, isGameAFK, isDND, isGameBusy, mobile, zoneName, gameText, battleTag, factionName = FriendGroups_GetFriendInfoById(button.id)
+			local accountName, characterName, class, level, _, _,
+			_, client, canCoop, _, _,
+			_, isGameAFK, isDND, isGameBusy, mobile, zoneName, gameText, battleTag, factionName = FriendGroups_GetFriendInfoById(button.id)
 
 			if FriendGroups_SavedVars.show_mobile_afk and client == 'BSAp' then
 				statusTexture = FRIENDS_TEXTURE_AFK
@@ -1000,7 +1006,7 @@ function FriendsList_UpdateFriendButton(button, elementData)
 				if FriendGroups_ShowRichPresenceOnly(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.wowProjectID, accountInfo.gameAccountInfo.factionName, accountInfo.gameAccountInfo.realmID) then
 					infoText = FriendGroups_GetOnlineInfoText(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.richPresence);
 				else
-					infoText = FriendGroups_GetOnlineInfoText(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.areaName);
+					infoText = FriendGroups_GetOnlineInfoText(accountInfo.gameAccountInfo.clientProgram, accountInfo.gameAccountInfo.isWowMobile, accountInfo.rafLinkType, accountInfo.gameAccountInfo.areaName, accountInfo.gameAccountInfo.realmName);
 				end
 
 				C_Texture.SetTitleIconTexture(button.gameIcon, accountInfo.gameAccountInfo.clientProgram, Enum.TitleIconVersion.Medium);
@@ -1124,109 +1130,118 @@ function FriendsList_UpdateFriendButton(button, elementData)
 			button.travelPassButton.DisabledTexture:SetAtlas("friendslist-invitebutton-default-disabled");
 		end
 	end
-	return height;
+
+	return nil;
 end
 
-function FriendsList_Update(forceUpdate)
+function FriendGroups_FriendsListUpdate(forceUpdate)
 	local numBNetTotal, numBNetOnline, numBNetFavorite, numBNetFavoriteOnline = BNGetNumFriends()
 	local numBNetOffline = numBNetTotal - numBNetOnline
 	local numBNetFavoriteOffline = numBNetFavorite - numBNetFavoriteOnline
 	local numWoWTotal = C_FriendList.GetNumFriends()
 	local numWoWOnline = C_FriendList.GetNumOnlineFriends()
 	local numWoWOffline = numWoWTotal - numWoWOnline
-	local dataProvider = CreateDataProvider()
 	local retainScrollPosition = not forceUpdate
 	local hideGroups = FriendGroups_SavedVars.hide_empty_groups or (FriendGroups_SavedVars.show_search and searchValue ~= "")
 
-	if (not FriendsListFrame:IsShown() and not forceUpdate) then
-		return
-	end
+	FriendGroups_DebugLog(FriendsListFrame.ScrollBox, "FriendsListFrame.ScrollBox")
 
-	wipe(groupsTotal)
-	wipe(groupsSorted)
+	local dataProvider = FriendsListFrame.ScrollBox:GetDataProvider()
+	
+	if (dataProvider) then
 
-	-- invites
-	local numInvites = BNGetNumFriendInvites()
-	if ( numInvites > 0 ) then
-		if ( not GetCVarBool("friendInvitesCollapsed") ) then
-			for i = 1, numInvites do
-				dataProvider:Insert({id=i, buttonType=FRIENDS_BUTTON_TYPE_INVITE})
+		FriendsListFrame.ScrollBox:FlushDataProvider()
+
+		if (not FriendsListFrame:IsShown() and not forceUpdate) then
+			return
+		end
+
+		wipe(groupsTotal)
+		wipe(groupsSorted)
+
+		-- invites
+		local numInvites = BNGetNumFriendInvites()
+		if ( numInvites > 0 ) then
+			if ( not GetCVarBool("friendInvitesCollapsed") ) then
+				for i = 1, numInvites do
+					dataProvider:Insert({id=i, buttonType=FRIENDS_BUTTON_TYPE_INVITE})
+				end
 			end
 		end
-	end
 
-	local bnetFriendIndex = 0;
-	-- favorite friends, online and offline
-	for i = 1, numBNetFavorite do
-		bnetFriendIndex = bnetFriendIndex + 1;
-		FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-	end
+		local bnetFriendIndex = 0;
+		-- favorite friends, online and offline
+		for i = 1, numBNetFavorite do
+			bnetFriendIndex = bnetFriendIndex + 1;
+			FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
+		end
 
-	-- online Battlenet friends
-	for i = 1, numBNetOnline - numBNetFavoriteOnline do
-		bnetFriendIndex = bnetFriendIndex + 1
-		FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-	end
-	-- online WoW friends
-	for i = 1, numWoWOnline do
-		FriendGroups_SetGroups(i, FRIENDS_BUTTON_TYPE_WOW)
-	end
+		-- online Battlenet friends
+		for i = 1, numBNetOnline - numBNetFavoriteOnline do
+			bnetFriendIndex = bnetFriendIndex + 1
+			FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
+		end
+		-- online WoW friends
+		for i = 1, numWoWOnline do
+			FriendGroups_SetGroups(i, FRIENDS_BUTTON_TYPE_WOW)
+		end
 
-	-- offline Battlenet friends
-	for i = 1, numBNetOffline - numBNetFavoriteOffline do
-		bnetFriendIndex = bnetFriendIndex + 1
-		FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-	end
-	-- offline WoW friends
-	for i = 1, numWoWOffline do
-		FriendGroups_SetGroups(i+numWoWOnline, FRIENDS_BUTTON_TYPE_WOW)
-	end
+		-- offline Battlenet friends
+		for i = 1, numBNetOffline - numBNetFavoriteOffline do
+			bnetFriendIndex = bnetFriendIndex + 1
+			FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
+		end
+		-- offline WoW friends
+		for i = 1, numWoWOffline do
+			FriendGroups_SetGroups(i+numWoWOnline, FRIENDS_BUTTON_TYPE_WOW)
+		end
 
-	if FriendGroups_SavedVars.show_search then
-		dataProvider:Insert({buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = "Search..."})
-	end
+		if FriendGroups_SavedVars.show_search then
+			dataProvider:Insert({buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = "Search..."})
+		end
 
-	table.sort(groupsSorted, FriendGroups_SortGroupsCustom)
+		table.sort(groupsSorted, FriendGroups_SortGroupsCustom)
 
-	for _, groupName in ipairs(groupsSorted) do
-		if (not hideGroups or (hideGroups and #groupsTotal[groupName] > 0)) then
-			if FriendGroups_SavedVars.collapsed[groupName] == nil then
-				FriendGroups_SavedVars.collapsed[groupName] = true
-			end
-
-			dataProvider:Insert({buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = groupName})
-
-			if not FriendGroups_SavedVars.collapsed[groupName] then
-				if FriendGroups_SavedVars.sort_by_status then
-					table.sort(groupsTotal[groupName], FriendGroups_SortTableByStatus)
+		for _, groupName in ipairs(groupsSorted) do
+			if (not hideGroups or (hideGroups and #groupsTotal[groupName] > 0)) then
+				if FriendGroups_SavedVars.collapsed[groupName] == nil then
+					FriendGroups_SavedVars.collapsed[groupName] = true
 				end
 
-				for _, playerData in ipairs(groupsTotal[groupName]) do
-					if playerData.buttonType and playerData.id then
-						dataProvider:Insert({id=playerData.id, buttonType=playerData.buttonType})
+				dataProvider:Insert({buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = groupName})
+
+				if not FriendGroups_SavedVars.collapsed[groupName] then
+					if FriendGroups_SavedVars.sort_by_status then
+						table.sort(groupsTotal[groupName], FriendGroups_SortTableByStatus)
+					end
+
+					for _, playerData in ipairs(groupsTotal[groupName]) do
+						if playerData.buttonType and playerData.id then
+							dataProvider:Insert({id=playerData.id, buttonType=playerData.buttonType})
+						end
 					end
 				end
 			end
 		end
-	end
 
-	-- Empty fallback
-	if dataProvider:GetSize() == 0 or (FriendGroups_SavedVars.show_search and dataProvider:GetSize() == 1) then
-		dataProvider:Insert({buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = "Friends List is empty"})
-	end
-
-	FriendsListFrame.ScrollBox:SetDataProvider(dataProvider, retainScrollPosition)
-
-	-- Cleanup
-	for groupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
-		if not groupsTotal[groupName] then
-			FriendGroups_SavedVars.collapsed[groupName] = nil
+		-- Empty fallback
+		if dataProvider:GetSize() == 0 or (FriendGroups_SavedVars.show_search and dataProvider:GetSize() == 1) then
+			dataProvider:Insert({buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = "Friends List is empty"})
 		end
-	end
 
-	if friendsListEmpty and (lastFriendsListEmptyWarning + 60) <= (math.floor(GetTime()+0.5)) then
-		lastFriendsListEmptyWarning = math.floor(GetTime()+0.5)
-		print("|cFF33FF99FriendGroups|r: Bnet API Bug detected. Your empty Friends List is caused by a WoW Client Bug. Please try to restart your game. (no guaranteed fix)")
+		--FriendsListFrame.ScrollBox:SetDataProvider(dataProvider, retainScrollPosition)
+
+		-- Cleanup
+		for groupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
+			if not groupsTotal[groupName] then
+				FriendGroups_SavedVars.collapsed[groupName] = nil
+			end
+		end
+
+		if friendsListEmpty and (lastFriendsListEmptyWarning + 60) <= (math.floor(GetTime()+0.5)) then
+			lastFriendsListEmptyWarning = math.floor(GetTime()+0.5)
+			print("|cFF33FF99FriendGroups|r: Bnet API Bug detected. Your empty Friends List is caused by a WoW Client Bug. Please try to restart your game. (no guaranteed fix)")
+		end
 	end
 end
 
@@ -1307,18 +1322,18 @@ function FriendsList_UpdateDividerTemplate(frame, elementData)
 					searchValue = ""
 					searchBox:SetText("")
 					FriendGroups_ToggleSearch(searchBox, frame)
-					FriendsList_Update()
+					FriendGroups_FriendsListUpdate()
 				end)
 				searchBox:SetScript("OnEditFocusLost", function()
 					FriendGroups_ToggleSearch(searchBox, frame)
 					searchOpened = false
-					FriendsList_Update()
+					FriendGroups_FriendsListUpdate()
 				end)
 				searchBox:SetScript("OnEnterPressed", function()
 					FriendGroups_ToggleSearch(searchBox, frame)
 					searchOpened = false
 					searchBox:ClearFocus()
-					FriendsList_Update()
+					FriendGroups_FriendsListUpdate()
 				end)
 				searchBox:SetScript("OnTextChanged", function(searchBox)
 					local textValue = searchBox:GetText()
@@ -1328,7 +1343,7 @@ function FriendsList_UpdateDividerTemplate(frame, elementData)
 
 					if textValue then
 						searchValue = textValue
-						FriendsList_Update()
+						FriendGroups_FriendsListUpdate()
 					end
 				end)
 
@@ -1374,7 +1389,7 @@ function FriendGroups_FrameFriendDividerTemplateCollapseClick(self, button, down
 		end
 	end
 
-	FriendsList_Update()
+	FriendGroups_FriendsListUpdate()
 end
 
 function FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
@@ -1382,7 +1397,7 @@ function FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
 
 	if button == "LeftButton" and groupName == "Search..." then
 		searchOpened = true
-		FriendsList_Update()
+		FriendGroups_FriendsListUpdate()
 	elseif button == "RightButton" and groupName ~= "Search..." then
 		ToggleDropDownMenu(1, self, FriendGroups_Menu, "cursor", 0, 0)
 	else
@@ -1391,7 +1406,7 @@ function FriendGroups_FrameFriendDividerTemplateHeaderClick(self, button, down)
 end
 
 function FriendGroups_FriendsListButtonTemplateClick(self, button, down)
-	FriendsList_Update()
+	FriendGroups_FriendsListUpdate()
 end
 
 --[[
@@ -1420,7 +1435,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
 
 		ScrollUtil.InitScrollBoxListWithScrollBar(FriendsListFrame.ScrollBox, FriendsListFrame.ScrollBar, view);
 
-		hooksecurefunc("FriendsList_Update", FriendsList_Update)
+		hooksecurefunc("FriendsList_Update", FriendGroups_FriendsListUpdate)
 		hooksecurefunc("FriendsFrame_UpdateFriendButton", FriendsList_UpdateFriendButton)
 		hooksecurefunc("FriendsFrameBNDropDown_Initialize", FriendGroups_AddDropDown)
 		hooksecurefunc("FriendsFrameBNOfflineDropDown_Initialize", FriendGroups_AddDropDown)
@@ -1444,7 +1459,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
 				show_retail = false,
 				show_faction_icons = true,
 				show_search = false,
-				hide_empty_groups = false
+				hide_empty_groups = false,
+				show_realm = false
 			}
 		end
 
