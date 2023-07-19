@@ -939,7 +939,7 @@ StaticPopupDialogs["FRIEND_GROUP_RENAME"] = {
 	Functions
 ]]--
 
-function FriendsList_UpdateFriendButton(button, elementData)
+function FriendGroups_FriendsListUpdateFriendButton(button, elementData)
 	local id = elementData.id;
 	local buttonType = elementData.buttonType;
 	button.buttonType = buttonType;
@@ -1144,102 +1144,97 @@ function FriendGroups_FriendsListUpdate(forceUpdate)
 	local retainScrollPosition = not forceUpdate
 	local hideGroups = FriendGroups_SavedVars.hide_empty_groups or (FriendGroups_SavedVars.show_search and searchValue ~= "")
 
-	local dataProvider = FriendsListFrame.ScrollBox:GetDataProvider()
-	
-	if (dataProvider) then
+	local dataProvider = CreateDataProvider()
 
-		FriendsListFrame.ScrollBox:FlushDataProvider()
+	if (not FriendsListFrame:IsShown() and not forceUpdate) then
+		return
+	end
 
-		if (not FriendsListFrame:IsShown() and not forceUpdate) then
-			return
-		end
+	wipe(groupsTotal)
+	wipe(groupsSorted)
 
-		wipe(groupsTotal)
-		wipe(groupsSorted)
-
-		-- invites
-		local numInvites = BNGetNumFriendInvites()
-		if ( numInvites > 0 ) then
-			if ( not GetCVarBool("friendInvitesCollapsed") ) then
-				for i = 1, numInvites do
-					dataProvider:Insert({id=i, buttonType=FRIENDS_BUTTON_TYPE_INVITE})
-				end
+	-- invites
+	local numInvites = BNGetNumFriendInvites()
+	if ( numInvites > 0 ) then
+		if ( not GetCVarBool("friendInvitesCollapsed") ) then
+			for i = 1, numInvites do
+				dataProvider:Insert({id=i, buttonType=FRIENDS_BUTTON_TYPE_INVITE})
 			end
 		end
+	end
 
-		local bnetFriendIndex = 0;
-		-- favorite friends, online and offline
-		for i = 1, numBNetFavorite do
-			bnetFriendIndex = bnetFriendIndex + 1;
-			FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-		end
+	local bnetFriendIndex = 0;
+	-- favorite friends, online and offline
+	for i = 1, numBNetFavorite do
+		bnetFriendIndex = bnetFriendIndex + 1;
+		FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
+	end
 
-		-- online Battlenet friends
-		for i = 1, numBNetOnline - numBNetFavoriteOnline do
-			bnetFriendIndex = bnetFriendIndex + 1
-			FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-		end
-		-- online WoW friends
-		for i = 1, numWoWOnline do
-			FriendGroups_SetGroups(i, FRIENDS_BUTTON_TYPE_WOW)
-		end
+	-- online Battlenet friends
+	for i = 1, numBNetOnline - numBNetFavoriteOnline do
+		bnetFriendIndex = bnetFriendIndex + 1
+		FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
+	end
+	-- online WoW friends
+	for i = 1, numWoWOnline do
+		FriendGroups_SetGroups(i, FRIENDS_BUTTON_TYPE_WOW)
+	end
 
-		-- offline Battlenet friends
-		for i = 1, numBNetOffline - numBNetFavoriteOffline do
-			bnetFriendIndex = bnetFriendIndex + 1
-			FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
-		end
-		-- offline WoW friends
-		for i = 1, numWoWOffline do
-			FriendGroups_SetGroups(i+numWoWOnline, FRIENDS_BUTTON_TYPE_WOW)
-		end
+	-- offline Battlenet friends
+	for i = 1, numBNetOffline - numBNetFavoriteOffline do
+		bnetFriendIndex = bnetFriendIndex + 1
+		FriendGroups_SetGroups(bnetFriendIndex, FRIENDS_BUTTON_TYPE_BNET)
+	end
+	-- offline WoW friends
+	for i = 1, numWoWOffline do
+		FriendGroups_SetGroups(i+numWoWOnline, FRIENDS_BUTTON_TYPE_WOW)
+	end
 
-		if FriendGroups_SavedVars.show_search then
-			dataProvider:Insert({buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = "Search..."})
-		end
+	if FriendGroups_SavedVars.show_search then
+		dataProvider:Insert({buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = "Search..."})
+	end
 
-		table.sort(groupsSorted, FriendGroups_SortGroupsCustom)
+	table.sort(groupsSorted, FriendGroups_SortGroupsCustom)
 
-		for _, groupName in ipairs(groupsSorted) do
-			if (not hideGroups or (hideGroups and #groupsTotal[groupName] > 0)) then
-				if FriendGroups_SavedVars.collapsed[groupName] == nil then
-					FriendGroups_SavedVars.collapsed[groupName] = true
+	for _, groupName in ipairs(groupsSorted) do
+		if (not hideGroups or (hideGroups and #groupsTotal[groupName] > 0)) then
+			if FriendGroups_SavedVars.collapsed[groupName] == nil then
+				FriendGroups_SavedVars.collapsed[groupName] = true
+			end
+
+			dataProvider:Insert({buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = groupName})
+
+			if not FriendGroups_SavedVars.collapsed[groupName] then
+				if FriendGroups_SavedVars.sort_by_status then
+					table.sort(groupsTotal[groupName], FriendGroups_SortTableByStatus)
 				end
 
-				dataProvider:Insert({buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = groupName})
-
-				if not FriendGroups_SavedVars.collapsed[groupName] then
-					if FriendGroups_SavedVars.sort_by_status then
-						table.sort(groupsTotal[groupName], FriendGroups_SortTableByStatus)
-					end
-
-					for _, playerData in ipairs(groupsTotal[groupName]) do
-						if playerData.buttonType and playerData.id then
-							dataProvider:Insert({id=playerData.id, buttonType=playerData.buttonType})
-						end
+				for _, playerData in ipairs(groupsTotal[groupName]) do
+					if playerData.buttonType and playerData.id then
+						dataProvider:Insert({id=playerData.id, buttonType=playerData.buttonType})
 					end
 				end
 			end
 		end
+	end
 
-		-- Empty fallback
-		if dataProvider:GetSize() == 0 or (FriendGroups_SavedVars.show_search and dataProvider:GetSize() == 1) then
-			dataProvider:Insert({buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = "Friends List is empty"})
+	-- Empty fallback
+	if dataProvider:GetSize() == 0 or (FriendGroups_SavedVars.show_search and dataProvider:GetSize() == 1) then
+		dataProvider:Insert({buttonType = FRIENDS_BUTTON_TYPE_DIVIDER, groupName = "Friends List is empty"})
+	end
+
+	FriendsListFrame.ScrollBox:SetDataProvider(dataProvider, retainScrollPosition)
+
+	-- Cleanup
+	for groupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
+		if not groupsTotal[groupName] then
+			FriendGroups_SavedVars.collapsed[groupName] = nil
 		end
+	end
 
-		--FriendsListFrame.ScrollBox:SetDataProvider(dataProvider, retainScrollPosition)
-
-		-- Cleanup
-		for groupName, _ in pairs(FriendGroups_SavedVars.collapsed) do
-			if not groupsTotal[groupName] then
-				FriendGroups_SavedVars.collapsed[groupName] = nil
-			end
-		end
-
-		if friendsListEmpty and (lastFriendsListEmptyWarning + 60) <= (math.floor(GetTime()+0.5)) then
-			lastFriendsListEmptyWarning = math.floor(GetTime()+0.5)
-			print("|cFF33FF99FriendGroups|r: Bnet API Bug detected. Your empty Friends List is caused by a WoW Client Bug. Please try to restart your game. (no guaranteed fix)")
-		end
+	if friendsListEmpty and (lastFriendsListEmptyWarning + 60) <= (math.floor(GetTime()+0.5)) then
+		lastFriendsListEmptyWarning = math.floor(GetTime()+0.5)
+		print("|cFF33FF99FriendGroups|r: Bnet API Bug detected. Your empty Friends List is caused by a WoW Client Bug. Please try to restart your game. (no guaranteed fix)")
 	end
 end
 
@@ -1299,7 +1294,7 @@ function FriendGroups_Search(playerId, playerButtonType)
 
 end
 
-function FriendsList_UpdateDividerTemplate(frame, elementData)
+function FriendGroups_FriendsListUpdateDividerTemplate(frame, elementData)
 	local groupName = elementData.groupName
 	local groupOnline = groupsCount[groupName] and groupsCount[groupName]["Online"] or 0
 	local groupTotal = groupsCount[groupName] and groupsCount[groupName]["Total"] or 0
@@ -1412,6 +1407,29 @@ function FriendGroups_FriendsListButtonTemplateClick(self, button, down)
 	FriendGroups_FriendsListUpdate()
 end
 
+function FriendGroups_FriendsFrameUpdateFriendInviteHeaderButton(button, elementData)
+	button:SetFormattedText(FRIEND_REQUESTS, BNGetNumFriendInvites());
+	local collapsed = GetCVarBool("friendInvitesCollapsed");
+	if ( collapsed ) then
+		button.DownArrow:Hide();
+		button.RightArrow:Show();
+	else
+		button.DownArrow:Show();
+		button.RightArrow:Hide();
+	end
+end
+
+function FriendGroups_FriendsFrameUpdateFriendInviteButton(button, elementData)
+	local id = elementData.id;
+	button.buttonType = elementData.buttonType;
+	button.id = id;
+
+	local inviteID, accountName = BNGetFriendInviteInfo(id);
+	button.Name:SetText(accountName);
+	button.inviteID = inviteID;
+	button.inviteIndex = button.id;
+end
+
 --[[
 	Init Addon
 ]]--
@@ -1421,25 +1439,24 @@ frame:RegisterEvent("PLAYER_LOGIN")
 
 frame:SetScript("OnEvent", function(self, event, ...)
 	if event == "PLAYER_LOGIN" then
-		local view = CreateScrollBoxListLinearView();
-
+		local view = CreateScrollBoxListLinearView()
 		view:SetElementFactory(function(factory, elementData)
 			local buttonType = elementData.buttonType;
 			if buttonType == FRIENDS_BUTTON_TYPE_DIVIDER then
-				factory("FriendGroupsFrameFriendDividerTemplate", FriendsList_UpdateDividerTemplate);
+				factory("FriendGroupsFrameFriendDividerTemplate", FriendGroups_FriendsListUpdateDividerTemplate);
 			elseif buttonType == FRIENDS_BUTTON_TYPE_INVITE_HEADER then
-				factory("FriendsPendingInviteHeaderButtonTemplate", FriendsFrame_UpdateFriendInviteHeaderButton);
+				factory("FriendsPendingInviteHeaderButtonTemplate", FriendGroups_FriendsFrameUpdateFriendInviteHeaderButton);
 			elseif buttonType == FRIENDS_BUTTON_TYPE_INVITE then
-				factory("FriendsFrameFriendInviteTemplate", FriendsFrame_UpdateFriendInviteButton);
+				factory("FriendsFrameFriendInviteTemplate", FriendGroups_FriendsFrameUpdateFriendInviteButton);
 			else
-				factory("FriendGroupsFriendsListButtonTemplate", FriendsList_UpdateFriendButton);
+				factory("FriendGroupsFriendsListButtonTemplate", FriendGroups_FriendsListUpdateFriendButton);
 			end
 		end);
 
 		ScrollUtil.InitScrollBoxListWithScrollBar(FriendsListFrame.ScrollBox, FriendsListFrame.ScrollBar, view);
-
+		
 		hooksecurefunc("FriendsList_Update", FriendGroups_FriendsListUpdate)
-		hooksecurefunc("FriendsFrame_UpdateFriendButton", FriendsList_UpdateFriendButton)
+		hooksecurefunc("FriendsFrame_UpdateFriendButton", FriendGroups_FriendsListUpdateFriendButton)
 		hooksecurefunc("FriendsFrameBNDropDown_Initialize", FriendGroups_AddDropDown)
 		hooksecurefunc("FriendsFrameBNOfflineDropDown_Initialize", FriendGroups_AddDropDown)
 		hooksecurefunc("FriendsFrameDropDown_Initialize", FriendGroups_AddDropDown)
