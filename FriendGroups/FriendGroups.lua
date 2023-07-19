@@ -25,6 +25,7 @@ local menuItems = {
 		{ text = "Filter", notCheckable = true, isTitle = true },
 		{ text = "Enable Search", checked = function() return FriendGroups_SavedVars.show_search end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_search = not FriendGroups_SavedVars.show_search FriendGroups_FriendsListUpdate() end },
 		{ text = "Hide all offline", checked = function() return FriendGroups_SavedVars.hide_offline end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.hide_offline = not FriendGroups_SavedVars.hide_offline FriendGroups_FriendsListUpdate() end },
+		{ text = "Hide all AFK", checked = function() return FriendGroups_SavedVars.hide_afk end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.hide_afk = not FriendGroups_SavedVars.hide_afk FriendGroups_FriendsListUpdate() end },
 		{ text = "Hide empty groups", checked = function() return FriendGroups_SavedVars.hide_empty_groups end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.hide_empty_groups = not FriendGroups_SavedVars.hide_empty_groups FriendGroups_FriendsListUpdate() end },
 		{ text = "Show only Ingame Friends", checked = function() return FriendGroups_SavedVars.ingame_only end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.ingame_only = not FriendGroups_SavedVars.ingame_only FriendGroups_FriendsListUpdate() end },
 		{ text = "Show only Retail Friends", checked = function() return FriendGroups_SavedVars.show_retail end, func = function() CloseDropDownMenus() FriendGroups_SavedVars.show_retail = not FriendGroups_SavedVars.show_retail FriendGroups_FriendsListUpdate() end },
@@ -728,13 +729,15 @@ function FriendGroups_SetGroups(id, buttonType)
 		end
 
 		if isOnline then
-			if (FriendGroups_SavedVars.ingame_only and client == BNET_CLIENT_WOW) or not FriendGroups_SavedVars.ingame_only then
-				if FriendGroups_SavedVars.show_retail and client == BNET_CLIENT_WOW then
-					if isRetail then
+			if (FriendGroups_SavedVars.hide_afk and statusText ~= "AFK" and statusText ~= "AFKMobile") or not FriendGroups_SavedVars.hide_afk then
+				if (FriendGroups_SavedVars.ingame_only and client == BNET_CLIENT_WOW) or not FriendGroups_SavedVars.ingame_only then
+					if FriendGroups_SavedVars.show_retail and client == BNET_CLIENT_WOW then
+						if isRetail then
+							addToTable = true
+						end
+					else
 						addToTable = true
 					end
-				else
-					addToTable = true
 				end
 			end
 		else
@@ -1480,7 +1483,8 @@ frame:SetScript("OnEvent", function(self, event, ...)
 				show_faction_icons = true,
 				show_search = false,
 				hide_empty_groups = false,
-				show_realm = false
+				show_realm = false,
+				hide_afk = false
 			}
 		end
 
